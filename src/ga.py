@@ -70,8 +70,6 @@ class Individual_Grid(object):
 
         left = 1
         right = width - 1
-
-        pipe_set = {'|', 'T'}
         
         for x in range(left, right):
                 if random.randint(1,100) < 20:
@@ -84,29 +82,23 @@ class Individual_Grid(object):
                 if random.randint(1, 100) < 5 and y <= 14:
                     item = random.randint(1,100)
                     if item < 10:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = 'M'
+                        genome[y][x] = 'M'
                     elif 10 <= item < 15:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = 'o'
+                        genome[y][x] = 'o'
                     elif 15 <= item < 25:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = 'B'
+                        genome[y][x] = 'B'
                     elif 25 <= item < 30:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = '?'
+                        genome[y][x] = '?'
                     elif 30 <= item < 45:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = 'X'
+                        genome[y][x] = 'X'
                     elif 45 <= item < 50 and y == 14:
                         pipe = random.randint(0,2)
                         genome[y - pipe][x]='T'
-                        for i in range(0, pipe):
+                        for i in range(0, pipe - 1):
                             genome[y - i][x] = '|'
                         genome[y+1][x] = 'X'
                     else:
-                        if genome[y][x] not in pipe_set:
-                            genome[y][x] = '-'
+                        genome[y][x] = '-'
         
         for x in range(left, right):
                 if genome[15][x] == '-' and genome[14][x] != '-':
@@ -144,7 +136,7 @@ class Individual_Grid(object):
                     else:
                         new_genome[y][x] = other.genome[y][x]
                 else:
-                    new_genome[y][x] = other.genome[y][x]"""
+                    new_genome[y][x] = other.genome[y][x]
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
         return (Individual_Grid(new_genome))
