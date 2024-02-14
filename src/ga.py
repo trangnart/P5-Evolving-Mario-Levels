@@ -72,7 +72,8 @@ class Individual_Grid(object):
         right = width - 1
         for y in range(height):
             for x in range(left, right):
-                pass
+                if random.random()< 0.1 and len(genome) > 0:
+                    genome[y][x] = random.choice(options)
         return genome
 
     # Create zero or more children from self and other
@@ -86,7 +87,8 @@ class Individual_Grid(object):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                pass
+                if random.randint(1, 200) < 100:
+                    new_genome[y][x] = other_genome[y][x]
         # do mutation; note we're returning a one-element tuple here
         return (Individual_Grid(new_genome),)
 
