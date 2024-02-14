@@ -70,6 +70,8 @@ class Individual_Grid(object):
 
         left = 1
         right = width - 1
+
+        pipe_set = {'|', 'T'}
         
         for x in range(left, right):
                 if random.randint(1,100) < 20:
@@ -82,23 +84,29 @@ class Individual_Grid(object):
                 if random.randint(1, 100) < 10 and y <= 14:
                     item = random.randint(1,100)
                     if item < 10:
-                        genome[y][x] = 'M'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = 'M'
                     elif 10 <= item < 15:
-                        genome[y][x] = 'o'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = 'o'
                     elif 15 <= item < 25:
-                        genome[y][x] = 'B'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = 'B'
                     elif 25 <= item < 30:
-                        genome[y][x] = '?'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = '?'
                     elif 30 <= item < 45:
-                        genome[y][x] = 'X'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = 'X'
                     elif 45 <= item < 50 and y == 14:
-                        pipe = random.randint(2,4)
+                        pipe = random.randint(2,3)
                         genome[y - pipe][x]='T'
-                        for i in range(0, pipe - 1):
+                        for i in range(0, pipe):
                             genome[y - i][x] = '|'
                         genome[y+1][x] = 'X'
                     else:
-                        genome[y][x] = '-'
+                        if genome[y][x] not in pipe_set:
+                            genome[y][x] = '-'
         
         for x in range(left, right):
                 if genome[15][x] == '-' and genome[14][x] != '-':
@@ -126,10 +134,12 @@ class Individual_Grid(object):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                if random.randint(1, 100) < 20:
+                new_genome[y][x] = self.genome[y][x]
+                #picking randomly, don't know
+                """if random.randint(1, 100) < 20:
                     new_genome[y][x] = self.genome[y][x]
                 else:
-                    new_genome[y][x] = other.genome[y][x]
+                    new_genome[y][x] = other.genome[y][x]"""
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
         return (Individual_Grid(new_genome))
