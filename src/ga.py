@@ -136,7 +136,7 @@ class Individual_Grid(object):
                     else:
                         new_genome[y][x] = other.genome[y][x]
                 else:
-                    new_genome[y][x] = other.genome[y][x]
+                    new_genome[y][x] = other.genome[y][x]"""
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
         return (Individual_Grid(new_genome))
