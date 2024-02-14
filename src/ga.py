@@ -70,9 +70,20 @@ class Individual_Grid(object):
 
         left = 1
         right = width - 1
+        
+        for x in range(left, right):
+                if random.randint(1,100) < 20:
+                    genome[15][x] = '-'
+                else:
+                    genome[15][x]= 'X'
+
         for y in range(height):
             for x in range(left, right):
-                pass
+                if y <= 11 and genome[y + 4][x] in {'X', 'T', 'B', 'M' '?'}:
+                    if random.randint(1,100) < 10:
+                        item = random.randint(1,4)
+                        if item == 1:
+                            genome[y][x] = 'B'
         return genome
 
     # Create zero or more children from self and other
