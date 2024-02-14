@@ -81,7 +81,7 @@ class Individual_Grid(object):
 
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 10 and y <= 14:
+                if random.randint(1, 100) < 5 and y <= 14:
                     item = random.randint(1,100)
                     if item < 10:
                         if genome[y][x] not in pipe_set:
@@ -99,7 +99,7 @@ class Individual_Grid(object):
                         if genome[y][x] not in pipe_set:
                             genome[y][x] = 'X'
                     elif 45 <= item < 50 and y == 14:
-                        pipe = random.randint(2,3)
+                        pipe = random.randint(0,2)
                         genome[y - pipe][x]='T'
                         for i in range(0, pipe):
                             genome[y - i][x] = '|'
@@ -125,19 +125,24 @@ class Individual_Grid(object):
 
     # Create zero or more children from self and other
     def generate_children(self, other):
-        new_genome = copy.deepcopy(self.genome)
+        new_genome = copy.deepcopy(other.genome)
         # Leaving first and last columns alone...
         # do crossover with other
+        pipe_set = {'|', 'T'}
         left = 1
         right = width - 1
         for y in range(height):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                new_genome[y][x] = self.genome[y][x]
                 #picking randomly, don't know
-                """if random.randint(1, 100) < 20:
-                    new_genome[y][x] = self.genome[y][x]
+                new_genome[y][x] = other.genome[y][x]
+
+                """if other.genome[y][x] not in pipe_set and self.genome[y][x] not in pipe_set:
+                    if random.randint(1, 100) > 10:
+                        new_genome[y][x] = self.genome[y][x]
+                    else:
+                        new_genome[y][x] = other.genome[y][x]
                 else:
                     new_genome[y][x] = other.genome[y][x]"""
         # do mutation; note we're returning a one-element tuple here
