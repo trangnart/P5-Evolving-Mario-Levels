@@ -79,11 +79,40 @@ class Individual_Grid(object):
 
         for y in range(height):
             for x in range(left, right):
-                if y <= 11 and genome[y + 4][x] in {'X', 'T', 'B', 'M' '?'}:
-                    if random.randint(1,100) < 10:
-                        item = random.randint(1,4)
-                        if item == 1:
-                            genome[y][x] = 'B'
+                if random.randint(1, 100) < 10 and y <= 14:
+                    item = random.randint(1,100)
+                    if item < 10:
+                        genome[y][x] = 'M'
+                    elif 10 <= item < 15:
+                        genome[y][x] = 'o'
+                    elif 15 <= item < 25:
+                        genome[y][x] = 'B'
+                    elif 25 <= item < 30:
+                        genome[y][x] = '?'
+                    elif 30 <= item < 45:
+                        genome[y][x] = 'X'
+                    elif 45 <= item < 50 and y == 14:
+                        pipe = random.randint(2,4)
+                        genome[y - pipe][x]='T'
+                        for i in range(0, pipe - 1):
+                            genome[y - i][x] = '|'
+                        genome[y+1][x] = 'X'
+                    else:
+                        genome[y][x] = '-'
+        
+        for x in range(left, right):
+                if genome[15][x] == '-' and genome[14][x] != '-':
+                    genome[14][x] == '-'
+                if genome[14][x] in {'?', 'M', 'B'}:
+                    genome[14][x] = '-'
+
+        for y in range(14):
+            for x in range(left, right):
+                enemy = random.randint(1, 100)
+                if enemy == 1:
+                    if genome[y+1][x] not in {'-', 'o'} and genome[y][x] == '-':
+                        genome[y][x] = 'E'
+        
         return genome
 
     # Create zero or more children from self and other
@@ -97,9 +126,13 @@ class Individual_Grid(object):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                pass
+                if random.randint(1, 100) < 20:
+                    new_genome[y][x] = self.genome[y][x]
+                else:
+                    new_genome[y][x] = other.genome[y][x]
         # do mutation; note we're returning a one-element tuple here
-        return (Individual_Grid(new_genome),)
+        new_genome = self.mutate(new_genome)
+        return (Individual_Grid(new_genome))
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
@@ -358,6 +391,44 @@ def generate_successors(population):
     results = []
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
+    population_copy = copy.deepcopy(population)
+    #Tournament selection
+    compare_size = len(population_copy) - 1
+    compareing = []
+    for i in range(0, compare_size):
+        compare_1 = random.choice(population_copy)
+        compare_2 = random.choice(population_copy)
+        while compare_1 == compare_2:
+            compare_2 = random.choice(population_copy)
+        if compare_1.fitness() < compare_2.fitness():
+            compareing.append(compare_2)
+        else:
+            compareing.append(compare_1)
+    
+    #Elitist selection
+    parts =[]
+    sort = sorted(population_copy, key=lambda better:better.fitness(), reverse = True)
+    for i in range(0, int(len(population_copy)/2)):
+        parts.append(sort[i])
+    if len(population_copy) % 2 != 0:
+        parts.append(sort[math.floor(len(population_copy)/2)])
+    
+    #Crossing over
+    if len(compareing) < len(parts):
+        size = len(compareing)
+    else:
+        size = len(parts)
+
+    for i in range(0, size):
+        first = compareing[i]
+        second = parts[i]
+        if Individual == Individual_DE:
+            results.append(first.generate_children(second)[0])
+            results.append(second.generate_children(first)[1])
+        else:
+            results.append(first.generate_children(second))
+            results.append(second.generate_children(first))
+
     return results
 
 
