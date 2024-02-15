@@ -70,57 +70,97 @@ class Individual_Grid(object):
 
         left = 1
         right = width - 1
+
+        pipe_parts = {'T', '|'}
         
         for x in range(left, right):
-                if random.randint(1,100) < 20:
-                    genome[15][x] = '-'
-                else:
-                    genome[15][x]= 'X'
+            if random.randint(1,100) < 20:
+                genome[15][x] = '-'
+            else:
+                genome[15][x]= 'X'
 
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 5 and y <= 14:
+                if genome[y][x] == 'E':
+                    genome[y][x] = '-'
+                if genome[y][x] in pipe_parts:
+                    genome[y][x] = '-'
+
+        for y in range(height):
+            for x in range(left, right):
+                if random.randint(1, 100) < 10 and y <= 14:
                     item = random.randint(1,100)
-                    if item < 10:
-                        genome[y][x] = 'M'
-                    elif 10 <= item < 15:
-                        genome[y][x] = 'o'
-                    elif 15 <= item < 25:
-                        genome[y][x] = 'B'
-                    elif 25 <= item < 30:
-                        genome[y][x] = '?'
-                    elif 30 <= item < 45:
-                        genome[y][x] = 'X'
-                    elif 45 <= item < 50 and y == 14:
-                        pipe = random.randint(0,2)
-                        genome[y - pipe][x]='T'
-                        for i in range(0, pipe - 1):
-                            genome[y - i][x] = '|'
-                        genome[y+1][x] = 'X'
-                    else:
-                        genome[y][x] = '-'
+                    if genome[y][x] not in pipe_parts:
+                        if item < 10:
+                            genome[y][x] = 'M'
+                        elif 10 <= item < 15:
+                            genome[y][x] = 'o'
+                        elif 15 <= item < 25:
+                            genome[y][x] = 'B'
+                        elif 25 <= item < 30:
+                            genome[y][x] = '?'
+                        elif 30 <= item < 45:
+                            genome[y][x] = 'X'
+                        elif 45 <= item < 50 and y == 14:
+                            pipe = random.randint(0,3)
+                            genome[y - pipe][x]='T'
+                            for i in range(0, pipe):
+                                genome[y - i][x] = '|'
+                            genome[15][x] = 'X'
+                        else:
+                            genome[y][x] = '-'
         
+        for y in range(14):
+            for x in range(left, right):
+                if genome[y][x] in {'?', 'M', 'B'} and (genome[y-1][x] != '-' or genome[y+1][x] != '-' or genome[y+1][x-1] != '-'):
+                    genome[y][x] = '-'
+
+                if genome[y][x] == '|' and (genome[y-1][x] != 'T' or genome[y-1][x] != '|'):
+                    if genome[y-2][x] == 'T' or genome[y-2][x] == '|':
+                        genome[y-1][x] = '|'
+                    else:
+                        genome[y-1][x] = 'T'
+        
+        for y in range(15):
+            for x in range(left, right):
+                if genome[y][x] == 'T' and (genome[y+1][x] != '|' or genome[y+1][x] != 'X'):
+                    genome[y+1][x] = '|'
+
         for x in range(left, right):
                 if genome[15][x] == '-' and genome[14][x] != '-':
-                    genome[14][x] == '-'
+                    if genome[14][x] in pipe_parts:
+                        genome[15][x] = 'X'
+                    else:
+                        genome[14][x] = '-'
                 if genome[14][x] in {'?', 'M', 'B'}:
                     genome[14][x] = '-'
 
         for y in range(14):
             for x in range(left, right):
                 enemy = random.randint(1, 100)
-                if enemy == 1:
+                if enemy < 5:
                     if genome[y+1][x] not in {'-', 'o'} and genome[y][x] == '-':
                         genome[y][x] = 'E'
-        
+
+        for y in range(height):
+            if y < 14:
+                genome[y][0] = '-'
+            if y <= 6:
+                genome[y][right] = '-'
+            elif y == 7:
+                genome[y][right] = 'v'
+            elif y <= 13:
+                genome[y][right] = 'f'
+            else:
+                genome[y][right] = 'X'
+
         return genome
 
     # Create zero or more children from self and other
     def generate_children(self, other):
-        new_genome = copy.deepcopy(other.genome)
+        new_genome = copy.deepcopy(self.genome)
         # Leaving first and last columns alone...
         # do crossover with other
-        pipe_set = {'|', 'T'}
         left = 1
         right = width - 1
         for y in range(height):
@@ -128,15 +168,10 @@ class Individual_Grid(object):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
                 #picking randomly, don't know
-                new_genome[y][x] = other.genome[y][x]
-
-                """if other.genome[y][x] not in pipe_set and self.genome[y][x] not in pipe_set:
-                    if random.randint(1, 100) > 10:
-                        new_genome[y][x] = self.genome[y][x]
-                    else:
-                        new_genome[y][x] = other.genome[y][x]
+                if random.randint(1, 100) > 30:
+                    new_genome[y][x] = self.genome[y][x]
                 else:
-                    new_genome[y][x] = other.genome[y][x]"""
+                    new_genome[y][x] = other.genome[y][x]
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
         return (Individual_Grid(new_genome))
@@ -413,7 +448,7 @@ def generate_successors(population):
             compareing.append(compare_1)
     
     #Elitist selection
-    parts =[]
+    parts = []
     sort = sorted(population_copy, key=lambda better:better.fitness(), reverse = True)
     for i in range(0, int(len(population_copy)/2)):
         parts.append(sort[i])
